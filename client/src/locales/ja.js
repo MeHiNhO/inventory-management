@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '在庫補充',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -125,7 +126,13 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム'
+    },
+    submitted: {
+      title: '発注済み注文',
+      empty: 'まだ補充注文はありません。',
+      loadError: '発注済みの注文を読み込めませんでした'
     }
   },
 
@@ -188,6 +195,32 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '在庫補充',
+    description: '予算の範囲内で、需要予測に基づいて補充発注を計画する',
+    budget: '利用可能な予算',
+    plannedSpend: '購入予定額',
+    remaining: '残りの予算',
+    fullRestock: '全品目の補充にかかる費用',
+    recommended: 'おすすめの補充品',
+    placeOrder: '注文する',
+    placing: '注文中...',
+    increaseBudget: '補充の推奨事項を確認するには、予算を増額してください。',
+    nothingToRestock: '予測に含まれるすべての項目は、在庫または発注済みの注文で賄われています。',
+    orderPlaced: '注文番号 {orderNumber} の注文が完了しました。',
+    viewOrders: '「注文」で表示',
+    loadError: '補充の推奨事項を読み込めませんでした',
+    orderError: '注文ができませんでした',
+    days: '{count}日',
+    table: {
+      needed: '必要',
+      orderQuantity: '注文数量',
+      unitPrice: '単価',
+      lineTotal: '小計'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -204,6 +237,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '注文済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
@@ -359,7 +393,13 @@ export default {
     '48V DC Power Supply Unit': '48V DC電源ユニット',
     'USB-C PD 100W Power Supply': 'USB-C PD 100W電源',
     'Battery Backup Power Supply': 'バッテリバックアップ電源',
-    'Adjustable Bench Power Supply': '可変ベンチ電源'
+    'Adjustable Bench Power Supply': '可変ベンチ電源',
+    'Industrial Widget Type A': '産業用ウィジェット タイプA',
+    'Steel Bearing Assembly': 'スチール製ベアリングアセンブリ',
+    'High-Temperature Gasket': '耐熱ガスケット',
+    'Oil Filter Cartridge': 'オイルフィルターカートリッジ',
+    'Pressure Relief Valve': '圧力逃がし弁',
+    'Logic Controller Board': 'ロジックコントローラボード'
   },
 
   // Customer Names

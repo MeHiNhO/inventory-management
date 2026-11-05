@@ -5,6 +5,51 @@
       <p>{{ t('orders.description') }}</p>
     </div>
 
+    <!-- Sits outside the loading block so a filter change doesn't blank it -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{{ t('orders.submitted.title') }} ({{ submittedOrders.length }})</h3>
+      </div>
+      <div v-if="submittedError" class="error">{{ submittedError }}</div>
+      <div v-else-if="submittedOrders.length === 0" class="submitted-empty">{{ t('orders.submitted.empty') }}</div>
+      <div v-else class="table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+              <th>{{ t('orders.table.items') }}</th>
+              <th class="col-status">{{ t('orders.table.status') }}</th>
+              <th class="col-date">{{ t('orders.table.orderDate') }}</th>
+              <th class="col-lead-time">{{ t('orders.table.leadTime') }}</th>
+              <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+              <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="order in submittedOrders" :key="order.id">
+              <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+              <td>
+                <!-- Listed inline: the dropdown used below would be clipped by a table this short -->
+                <div v-for="item in order.items" :key="item.sku" class="submitted-item">
+                  <span class="item-name">{{ translateProductName(item.name) }}</span>
+                  <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity.toLocaleString() }} @ {{ formatMoney(item.unit_price) }}</span>
+                </div>
+              </td>
+              <td class="col-status">
+                <span :class="['badge', getOrderStatusClass(order.status)]">
+                  {{ t(`status.${order.status.toLowerCase()}`) }}
+                </span>
+              </td>
+              <td class="col-date">{{ formatDate(order.order_date) }}</td>
+              <td class="col-lead-time">{{ t('restocking.days', { count: order.lead_time_days }) }}</td>
+              <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+              <td class="col-value"><strong>{{ formatMoney(order.total_cost) }}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -83,6 +128,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { formatCurrencyWithDecimals } from '../utils/currency'
 
 export default {
   name: 'Orders',
@@ -95,6 +141,8 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const submittedOrders = ref([])
+    const submittedError = ref(null)
 
     // Use shared filters
     const {
@@ -122,6 +170,21 @@ export default {
       } finally {
         loading.value = false
       }
+    }
+
+    // Loaded once and never filtered: the month filter only offers 2025,
+    // so it would hide every order placed today.
+    const loadSubmittedOrders = async () => {
+      try {
+        submittedOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        submittedError.value = t('orders.submitted.loadError')
+        console.error('Failed to load submitted orders:', err)
+      }
+    }
+
+    const formatMoney = (amount) => {
+      return formatCurrencyWithDecimals(amount, currentCurrency.value, 2)
     }
 
     // Watch for filter changes and reload data
@@ -154,12 +217,16 @@ export default {
     }
 
     onMounted(loadOrders)
+    onMounted(loadSubmittedOrders)
 
     return {
       t,
       loading,
       error,
       orders,
+      submittedOrders,
+      submittedError,
+      formatMoney,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -201,6 +268,21 @@ export default {
 
 .col-value {
   width: 120px;
+}
+
+.col-lead-time {
+  width: 110px;
+}
+
+.submitted-empty {
+  color: #64748b;
+  font-size: 0.938rem;
+}
+
+.submitted-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.125rem 0;
 }
 
 /* Items details styling */
