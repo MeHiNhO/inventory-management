@@ -22,6 +22,9 @@
           <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
             {{ t('nav.demandForecast') }}
           </router-link>
+          <router-link to="/restocking" :class="{ active: $route.path === '/restocking' }">
+            {{ t('nav.restocking') }}
+          </router-link>
           <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
             Reports
           </router-link>
@@ -33,7 +36,8 @@
         />
       </div>
     </header>
-    <FilterBar />
+    <!-- Restocking works from the budget alone, so none of the filters apply there -->
+    <FilterBar v-if="$route.path !== '/restocking'" />
     <main class="main-content">
       <router-view />
     </main>
